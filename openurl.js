@@ -14,12 +14,15 @@ switch (process.platform) {
         throw new Error("Unsupported platform: "+process.platform);
 }
 
-// /usr/local/lib/node_modules/openurl -> /Users/rauschma/git/js/openurl
-// ./node_modules/openurl -> /usr/local/lib/node_modules/openurl -> /Users/rauschma/git/js/openurl
-
-
 var exec = require('child_process').exec;
 
-export.open = function (url, callback) {
-    exec(command+" "+url, callback);
+exports.open = function (url, callback) {
+    exec(command+" "+url, function (error, stdout, stderr) {
+        // Only rudimentary error handling, we want to be easy to use for shell scripting
+        if (error) {
+            throw error;
+        } else {
+            callback();
+        }
+    });
 }

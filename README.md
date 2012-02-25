@@ -17,4 +17,8 @@ Install via npm:
     npm install openurl
 
 I’m not yet terribly familiar with implementing npm packages, so any feedback is welcome
-(especially experience reports on Windows, which I can’t test on)
+(especially experience reports on Windows and Linux, which I can’t test on).
+
+Related reading:
+
+- [Write your shell scripts in JavaScript, via Node.js](http://www.2ality.com/2011/12/nodejs-shell-scripting.html)
