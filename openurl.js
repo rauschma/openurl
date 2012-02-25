@@ -23,7 +23,7 @@ switch(process.platform) {
  * @param callback A function with a single error argument. Optional.
  */
 
-exports.open = function(url, callback) {
+function open(url, callback) {
     var child = spawn(command, [url]);
     var errorText = "";
     child.stderr.setEncoding('utf8');
@@ -44,4 +44,25 @@ exports.open = function(url, callback) {
     });
 }
 
+/**
+ * @param fields Common fields are: "subject", "body".
+ *     Some email apps let you specify arbitrary headers here.
+ * @param recipientsSeparator Default is ",". Use ";" for Outlook.
+ */
+function mailto(recipients, fields, recipientsSeparator, callback) {
+    recipientsSeparator = recipientsSeparator || ",";
 
+    var url = "mailto:"+recipients.join(recipientsSeparator);
+    Object.keys(fields).forEach(function (key, index) {
+        if (index === 0) {
+            url += "?";
+        } else {
+            url += "&";
+        }
+        url += key + "=" + encodeURIComponent(fields[key]);
+    });
+    open(url, callback);
+}
+
+exports.open = open;
+exports.mailto = mailto;

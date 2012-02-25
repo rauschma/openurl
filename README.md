@@ -12,6 +12,11 @@ Example interaction on the Node.js REPL:
     > require("openurl").open("http://rauschma.de")
     > require("openurl").open("mailto:john@example.com")
     
+You can generate emails as follows:
+
+    require("openurl").mailto(["john@example.com", "jane@example.com"],
+        { subject: "Hello!", body: "This is\nan automatically sent email!\n" });
+    
 Install via npm:
 
     npm install openurl
