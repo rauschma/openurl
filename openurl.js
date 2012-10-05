@@ -7,13 +7,11 @@ switch(process.platform) {
         command = 'open';
         break;
     case 'win32':
-        command = 'explorer.exe';
-        break;
-    case 'linux':
-        command = 'xdg-open';
+        command = 'start';
         break;
     default:
-        throw new Error('Unsupported platform: ' + process.platform);
+        command = 'xdg-open';
+        break;
 }
 
 /**
