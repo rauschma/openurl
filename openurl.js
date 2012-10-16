@@ -1,18 +1,18 @@
 var spawn = require('child_process').spawn;
 
-var command;
+var commands = {
+    'darwin': function (url) {
+        return spawn('open', [url]);
+    },
+    'win32': function (url) {
+        return spawn('cmd', ['/c', 'start', url]);
+    },
+    'default': function (url) {
+        return spawn('xdg-open', [url]);
+    },
+};
 
-switch(process.platform) {
-    case 'darwin':
-        command = 'open';
-        break;
-    case 'win32':
-        command = 'start';
-        break;
-    default:
-        command = 'xdg-open';
-        break;
-}
+var launcher = commands[process.platform] || commands['default'];
 
 /**
  * Error handling is deliberately minimal, as this function is to be easy to use for shell scripting
@@ -22,13 +22,14 @@ switch(process.platform) {
  */
 
 function open(url, callback) {
-    var child = spawn(command, [url]);
+    var child = launcher(url);
     var errorText = "";
     child.stderr.setEncoding('utf8');
     child.stderr.on('data', function (data) {
         errorText += data;
     });
     child.stderr.on('end', function () {
+        
         if (errorText.length > 0) {
             var error = new Error(errorText);
             if (callback) {
