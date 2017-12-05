@@ -12,6 +12,9 @@ switch(process.platform) {
     case 'linux':
         command = 'xdg-open';
         break;
+    case 'android':
+        command = 'xdg-open';
+        break;
     default:
         throw new Error('Unsupported platform: ' + process.platform);
 }
