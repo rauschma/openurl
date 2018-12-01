@@ -23,7 +23,14 @@ switch(process.platform) {
  * @param callback A function with a single error argument. Optional.
  */
 
-function open(url, callback) {
+function open(url, options, callback) {
+    if(typeof options === 'function') {
+        callback = options;
+        options = {};
+    }
+    else {
+        options = Object.assign({}, options);
+    }
     if(callback == null) {
         return new Promise((resolve, reject) => {
             open(url, (error) => {
@@ -48,7 +55,9 @@ function open(url, callback) {
             if (callback) {
                 callback(error);
             } else {
-                console.error(error.message);
+                if(!options.silent) {
+                    console.error(error.message);
+                }
             }
         }
         else if (callback) {
