@@ -21,6 +21,7 @@ switch(process.platform) {
  *
  * @param url The URL to open
  * @param callback A function with a single error argument. Optional.
+ * @returns a Promise if no callback is given
  */
 
 function open(url, options, callback) {
@@ -31,7 +32,7 @@ function open(url, options, callback) {
     else {
         options = Object.assign({}, options);
     }
-    if(callback == null) {
+    if(callback === undefined) {
         return new Promise((resolve, reject) => {
             open(url, (error) => {
                 if(error) {
