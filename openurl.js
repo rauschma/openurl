@@ -7,9 +7,9 @@ switch(process.platform) {
         command = 'open';
         break;
     case 'win32':
-        command = 'explorer.exe';
+        command = 'start';
         break;
-    case 'linux':
+    default:
         command = 'xdg-open';
         break;
     default:
@@ -61,14 +61,12 @@ function open(url, options, callback) {
             var error = new Error(errorText);
             if (callback) {
                 callback(error);
-            }
-            else {
+            } else {
                 if(!options.silent) {
                     console.error(error.message);
                 }
             }
-        }
-        else if (callback) {
+        } else if (callback) {
             callback();
         }
     }
