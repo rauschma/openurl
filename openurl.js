@@ -7,39 +7,83 @@ switch(process.platform) {
         command = 'open';
         break;
     case 'win32':
-        command = 'explorer.exe';
-        break;
-    case 'linux':
-        command = 'xdg-open';
+        command = 'start';
         break;
     default:
-        throw new Error('Unsupported platform: ' + process.platform);
+        command = 'xdg-open';
+        break;
 }
 
 /**
  * Error handling is deliberately minimal, as this function is to be easy to use for shell scripting
  *
  * @param url The URL to open
+ * @param options (optional) An object of options to pass. silent: don't log errors;
  * @param callback A function with a single error argument. Optional.
+ * @returns a Promise if no callback is given
  */
 
-function open(url, callback) {
-    var child = spawn(command, [url]);
-    var errorText = "";
+function open(url, options, callback) {
+    if(typeof options === 'function') {
+        callback = options;
+        options = {};
+    }
+    else {
+        options = Object.assign({}, options);
+    }
+    if(callback === undefined) {
+        return new Promise((resolve, reject) => {
+            open(url, (error) => {
+                if(error) {
+                    reject(error);
+                }
+                else {
+                    resolve();
+                }
+            })
+        });
+    }
+
+    let child = spawn(command, [url]);
+
+    let errorText = "";
+    let exitCode = null;
+    let exitSignal = null;
+    let endedStderr = false;
+    // 'end' can be called before or after 'exit', so we need a separate method to handle the exit state
+    const finish = () => {
+        if (exitCode != null && exitCode != 0) {
+            if(errorText.length == 0) {
+                errorText = "process exited with code "+exitCode;
+            }
+            var error = new Error(errorText);
+            if (callback) {
+                callback(error);
+            } else {
+                if(!options.silent) {
+                    console.error(error.message);
+                }
+            }
+        } else if (callback) {
+            callback();
+        }
+    }
+
     child.stderr.setEncoding('utf8');
     child.stderr.on('data', function (data) {
         errorText += data;
     });
     child.stderr.on('end', function () {
-        if (errorText.length > 0) {
-            var error = new Error(errorText);
-            if (callback) {
-                callback(error);
-            } else {
-                throw error;
-            }
-        } else if (callback) {
-            callback(error);
+        endedStderr = true;
+        if(exitCode != null || exitSignal != null) {
+            finish();
+        }
+    });
+    child.on('exit', (code, signal) => {
+        exitCode = code;
+        exitSignal = signal;
+        if(endedStderr) {
+            finish();
         }
     });
 }
@@ -49,10 +93,10 @@ function open(url, callback) {
  *     Some email apps let you specify arbitrary headers here.
  * @param recipientsSeparator Default is ",". Use ";" for Outlook.
  */
-function mailto(recipients, fields, recipientsSeparator, callback) {
+function mailto(recipients, fields, recipientsSeparator, ...openargs) {
     recipientsSeparator = recipientsSeparator || ",";
 
-    var url = "mailto:"+recipients.join(recipientsSeparator);
+    let url = "mailto:"+recipients.join(recipientsSeparator);
     Object.keys(fields).forEach(function (key, index) {
         if (index === 0) {
             url += "?";
@@ -61,7 +105,7 @@ function mailto(recipients, fields, recipientsSeparator, callback) {
         }
         url += key + "=" + encodeURIComponent(fields[key]);
     });
-    open(url, callback);
+    return open(url, ...openargs);
 }
 
 exports.open = open;
