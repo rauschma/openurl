@@ -71,7 +71,7 @@ function open(url, options, callback) {
  *     Some email apps let you specify arbitrary headers here.
  * @param recipientsSeparator Default is ",". Use ";" for Outlook.
  */
-function mailto(recipients, fields, recipientsSeparator, callback) {
+function mailto(recipients, fields, recipientsSeparator, ...openargs) {
     recipientsSeparator = recipientsSeparator || ",";
 
     var url = "mailto:"+recipients.join(recipientsSeparator);
@@ -83,7 +83,7 @@ function mailto(recipients, fields, recipientsSeparator, callback) {
         }
         url += key + "=" + encodeURIComponent(fields[key]);
     });
-    return open(url, callback);
+    return open(url, ...openargs);
 }
 
 exports.open = open;
