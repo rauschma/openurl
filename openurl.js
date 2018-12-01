@@ -24,6 +24,18 @@ switch(process.platform) {
  */
 
 function open(url, callback) {
+    if(callback == null) {
+        return new Promise((resolve, reject) => {
+            open(url, (error) => {
+                if(error) {
+                    reject(error);
+                }
+                else {
+                    resolve();
+                }
+            })
+        });
+    }
     var child = spawn(command, [url]);
     var errorText = "";
     child.stderr.setEncoding('utf8');
@@ -38,8 +50,9 @@ function open(url, callback) {
             } else {
                 console.error(error.message);
             }
-        } else if (callback) {
-            callback(error);
+        }
+        else if (callback) {
+            callback();
         }
     });
 }
@@ -61,7 +74,7 @@ function mailto(recipients, fields, recipientsSeparator, callback) {
         }
         url += key + "=" + encodeURIComponent(fields[key]);
     });
-    open(url, callback);
+    return open(url, callback);
 }
 
 exports.open = open;
