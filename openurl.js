@@ -20,6 +20,7 @@ switch(process.platform) {
  * Error handling is deliberately minimal, as this function is to be easy to use for shell scripting
  *
  * @param url The URL to open
+ * @param options (optional) An object of options to pass. `silent`: don't log errors;
  * @param callback A function with a single error argument. Optional.
  * @returns a Promise if no callback is given
  */
