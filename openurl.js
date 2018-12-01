@@ -45,18 +45,24 @@ function open(url, options, callback) {
             })
         });
     }
-    var child = spawn(command, [url]);
-    var errorText = "";
-    child.stderr.setEncoding('utf8');
-    child.stderr.on('data', function (data) {
-        errorText += data;
-    });
-    child.stderr.on('end', function () {
-        if (errorText.length > 0) {
+
+    let child = spawn(command, [url]);
+
+    let errorText = "";
+    let exitCode = null;
+    let exitSignal = null;
+    let endedStderr = false;
+    // 'end' can be called before or after 'exit', so we need a separate method to handle the exit state
+    const finish = () => {
+        if (exitCode != null && exitCode != 0) {
+            if(errorText.length == 0) {
+                errorText = "process exited with code "+exitCode;
+            }
             var error = new Error(errorText);
             if (callback) {
                 callback(error);
-            } else {
+            }
+            else {
                 if(!options.silent) {
                     console.error(error.message);
                 }
@@ -65,7 +71,25 @@ function open(url, options, callback) {
         else if (callback) {
             callback();
         }
+    }
+
+    child.stderr.setEncoding('utf8');
+    child.stderr.on('data', function (data) {
+        errorText += data;
     });
+    child.stderr.on('end', function () {
+        endedStderr = true;
+        if(exitCode != null || exitSignal != null) {
+            finish();
+        }
+    });
+    child.on('exit', (code, signal) => {
+        exitCode = code;
+        exitSignal = signal;
+        if(endedStderr) {
+            finish();
+        }
+    }
 }
 
 /**
@@ -76,7 +100,7 @@ function open(url, options, callback) {
 function mailto(recipients, fields, recipientsSeparator, ...openargs) {
     recipientsSeparator = recipientsSeparator || ",";
 
-    var url = "mailto:"+recipients.join(recipientsSeparator);
+    let url = "mailto:"+recipients.join(recipientsSeparator);
     Object.keys(fields).forEach(function (key, index) {
         if (index === 0) {
             url += "?";
