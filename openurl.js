@@ -85,7 +85,7 @@ function open(url, options, callback) {
         if(endedStderr) {
             finish();
         }
-    }
+    });
 }
 
 /**
