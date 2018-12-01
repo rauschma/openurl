@@ -12,8 +12,6 @@ switch(process.platform) {
     default:
         command = 'xdg-open';
         break;
-    default:
-        throw new Error('Unsupported platform: ' + process.platform);
 }
 
 /**
