@@ -36,7 +36,7 @@ function open(url, callback) {
             if (callback) {
                 callback(error);
             } else {
-                throw error;
+                console.error(error.message);
             }
         } else if (callback) {
             callback(error);
