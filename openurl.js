@@ -10,6 +10,7 @@ switch(process.platform) {
         command = 'explorer.exe';
         break;
     case 'linux':
+    case 'openbsd':
         command = 'xdg-open';
         break;
     default:
