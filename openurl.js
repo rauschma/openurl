@@ -2,6 +2,17 @@ var spawn = require('child_process').spawn;
 
 var command;
 
+function isWSL() {
+    const fs = require('fs');
+    try {
+        const contents = fs.readFileSync('/proc/version', 'utf-8');
+        return Boolean(contents.match(/.*microsoft|wsl.*/i));
+    } catch (err) {
+        /* swallow */
+        return false;
+    }
+}
+
 switch(process.platform) {
     case 'darwin':
         command = 'open';
@@ -10,7 +21,7 @@ switch(process.platform) {
         command = 'explorer.exe';
         break;
     case 'linux':
-        command = 'xdg-open';
+        command = isWSL() ? 'explorer.exe' : 'xdg-open';
         break;
     default:
         throw new Error('Unsupported platform: ' + process.platform);
